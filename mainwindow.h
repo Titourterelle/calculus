@@ -11,7 +11,10 @@
 //#include <QButtonGroup>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGridLayout>
 #include <QCheckBox>
+#include <QLabel>
+#include <QLineEdit>
 
 class MainWindow : public QMainWindow
 {
@@ -25,15 +28,20 @@ private:
     QWidget *startPage = new QWidget(menuStackedWidget);
     QWidget *gamePage = new QWidget(menuStackedWidget);
 
-    QHBoxLayout *startLayout = new QHBoxLayout(startPage);
+    //Start Page Widget
+    QVBoxLayout *startLayout = new QVBoxLayout(startPage);
+
+    QLabel *difficultyLabel = new QLabel("Tables Activées", startPage);
 
     QWidget *difficultyWidget = new QWidget(startPage);
-    QVBoxLayout *difficultyLayout = new QVBoxLayout(difficultyWidget);
+    QGridLayout *difficultyLayout = new QGridLayout(difficultyWidget);
 
     std::array<QCheckBox*, 10> tables;
 
+    QLabel *timeLabel = new QLabel("Limite de Temps", startPage);
+
     QWidget *timeWidget = new QWidget(startPage);
-    QVBoxLayout *timeLayout = new QVBoxLayout(timeWidget);
+    QHBoxLayout *timeLayout = new QHBoxLayout(timeWidget);
 
     //QButtonGroup *timeGroup = new QButtonGroup(timeWidget);
     QRadioButton *longTime = new QRadioButton("Long", timeWidget);
@@ -42,5 +50,11 @@ private:
     QRadioButton *noTime = new QRadioButton("Sans", timeWidget);
 
     QPushButton *startButton = new QPushButton(startPage);
+
+    //Game Page Widget
+    QVBoxLayout *gameLayout = new QVBoxLayout(gamePage);
+
+    QLabel *calculLabel = new QLabel(gamePage);
+    QLineEdit *entryEdit = new QLineEdit(gamePage);
 };
 #endif // MAINWINDOW_H
