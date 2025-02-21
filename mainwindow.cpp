@@ -1,10 +1,15 @@
 #include "mainwindow.h"
 #include <QCheckBox>
 #include <QIntValidator>
+#include <QPushButton>
+
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    connect(startButton, &QPushButton::clicked, this, &MainWindow::startGame);
+
     showFullScreen();
     setCentralWidget(menuStackedWidget);
 
@@ -22,15 +27,15 @@ MainWindow::MainWindow(QWidget *parent)
         tables[i]->setChecked(true);
     }
 
-    /*timeGroup->addButton(longTime);
-    timeGroup->addButton(normalTime);
-    timeGroup->addButton(shortTime);
-    timeGroup->addButton(noTime);*/
+    timeGroup->addButton(noTime, 0);
+    timeGroup->addButton(shortTime, 1);
+    timeGroup->addButton(normalTime, 2);
+    timeGroup->addButton(longTime, 3);
 
-    timeLayout->addWidget(longTime);
-    timeLayout->addWidget(normalTime);
-    timeLayout->addWidget(shortTime);
     timeLayout->addWidget(noTime);
+    timeLayout->addWidget(shortTime);
+    timeLayout->addWidget(normalTime);
+    timeLayout->addWidget(longTime);
 
     normalTime->setChecked(true);
 
@@ -52,3 +57,24 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() {}
+
+void MainWindow::startGame()
+{
+    bool oneIsChecked = false;
+    activeTables.clear();
+    for(auto i = 0; i < tables.size(); ++i)
+    {
+        if(tables[i]->isChecked())
+        {
+            oneIsChecked = true;
+            activeTables.insert(i+1);
+        }
+    }
+
+    int id = timeGroup->checkedId();
+    if(oneIsChecked && id != -1)
+    {
+        timeLimitSelect = static_cast<time>(id);
+        menuStackedWidget->setCurrentIndex(1);
+    }
+}
