@@ -37,6 +37,8 @@ else()
     else()
         add_executable(calculus
             ${PROJECT_SOURCES}
+            game.h game.cpp
+            timeLimit.h
         )
     endif()
 endif()

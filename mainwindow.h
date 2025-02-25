@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <array>
-#include <unordered_set>
+#include <vector>
 
 #include <QMainWindow>
 #include <QWidget>
@@ -15,7 +15,9 @@
 #include <QGridLayout>
 #include <QCheckBox>
 #include <QLabel>
-#include <QLineEdit>
+
+#include "game.h"
+#include "timeLimit.h"
 
 class MainWindow : public QMainWindow
 {
@@ -25,51 +27,42 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    enum class time
-    {
-        no = 0,
-        low = 1,
-        normal = 2,
-        high = 3
-    };
+    const std::vector<int>& getTables() const noexcept;
+    const TimeLimit& getTimeLimit() const noexcept;
 
 public slots:
-    void startGame();
+    void startGame() noexcept;
 private:
-    QStackedWidget *menuStackedWidget = new QStackedWidget(this);
-    QWidget *startPage = new QWidget(menuStackedWidget);
-    QWidget *gamePage = new QWidget(menuStackedWidget);
+    QStackedWidget *menuStackedWidget;
+    QWidget *startPage;
+    Game *gamePage;
 
     //Start Page Widget
-    QVBoxLayout *startLayout = new QVBoxLayout(startPage);
+    QVBoxLayout *startLayout;
 
-    QLabel *difficultyLabel = new QLabel("Tables Activées", startPage);
+    QLabel *difficultyLabel;
 
-    QWidget *difficultyWidget = new QWidget(startPage);
-    QGridLayout *difficultyLayout = new QGridLayout(difficultyWidget);
+    QWidget *difficultyWidget;
+    QGridLayout *difficultyLayout;
+
+    QLabel *timeLabel;
+
+    QWidget *timeWidget;
+    QHBoxLayout *timeLayout;
+
+    QButtonGroup *timeGroup;
+    QRadioButton *longTime;
+    QRadioButton *normalTime;
+    QRadioButton *shortTime;
+    QRadioButton *noTime;
+
+    QPushButton *startButton;
 
     std::array<QCheckBox*, 10> tables;
-    std::unordered_set<int> activeTables;
+    std::vector<int> activeTables;
 
-    QLabel *timeLabel = new QLabel("Limite de Temps", startPage);
+    TimeLimit timeLimitSelect = TimeLimit::Normal;
 
-    QWidget *timeWidget = new QWidget(startPage);
-    QHBoxLayout *timeLayout = new QHBoxLayout(timeWidget);
 
-    QButtonGroup *timeGroup = new QButtonGroup(timeWidget);
-    QRadioButton *longTime = new QRadioButton("Long", timeWidget);
-    QRadioButton *normalTime = new QRadioButton("Normal", timeWidget);
-    QRadioButton *shortTime = new QRadioButton("Court", timeWidget);
-    QRadioButton *noTime = new QRadioButton("Sans", timeWidget);
-
-    time timeLimitSelect = time::normal;
-
-    QPushButton *startButton = new QPushButton(startPage);
-
-    //Game Page Widget
-    QVBoxLayout *gameLayout = new QVBoxLayout(gamePage);
-
-    QLabel *calculLabel = new QLabel(gamePage);
-    QLineEdit *entryEdit = new QLineEdit(gamePage);
 };
 #endif // MAINWINDOW_H

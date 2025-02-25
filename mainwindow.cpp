@@ -1,24 +1,19 @@
 #include "mainwindow.h"
-#include <QCheckBox>
-#include <QIntValidator>
-#include <QPushButton>
-
-#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    connect(startButton, &QPushButton::clicked, this, &MainWindow::startGame);
-
-    showFullScreen();
-    setCentralWidget(menuStackedWidget);
+    menuStackedWidget = new QStackedWidget(this);
+    startPage = new QWidget(menuStackedWidget);
+    gamePage = new Game(menuStackedWidget);
 
     //Start Page
-    startLayout->addWidget(difficultyLabel);
-    startLayout->addWidget(difficultyWidget);
-    startLayout->addWidget(timeLabel);
-    startLayout->addWidget(timeWidget);
-    startLayout->addWidget(startButton);
+    startLayout = new QVBoxLayout(startPage);
+
+    difficultyLabel = new QLabel("Tables Activées", startPage);
+
+    difficultyWidget = new QWidget(startPage);
+    difficultyLayout = new QGridLayout(difficultyWidget);
 
     for(auto i = 0; i < 10; ++i)
     {
@@ -27,27 +22,44 @@ MainWindow::MainWindow(QWidget *parent)
         tables[i]->setChecked(true);
     }
 
+    timeLabel = new QLabel("Limite de Temps", startPage);
+
+    timeWidget = new QWidget(startPage);
+    timeLayout = new QHBoxLayout(timeWidget);
+
+    timeGroup = new QButtonGroup(timeWidget);
+    longTime = new QRadioButton("Long", timeWidget);
+    normalTime = new QRadioButton("Normal", timeWidget);
+    shortTime = new QRadioButton("Court", timeWidget);
+    noTime = new QRadioButton("Sans", timeWidget);
+
     timeGroup->addButton(noTime, 0);
     timeGroup->addButton(shortTime, 1);
     timeGroup->addButton(normalTime, 2);
     timeGroup->addButton(longTime, 3);
+
+    normalTime->setChecked(true);
 
     timeLayout->addWidget(noTime);
     timeLayout->addWidget(shortTime);
     timeLayout->addWidget(normalTime);
     timeLayout->addWidget(longTime);
 
-    normalTime->setChecked(true);
-
+    startButton = new QPushButton(startPage);
     startButton->setText("Jouer");
 
-    //Game Page
-    gameLayout->addWidget(calculLabel);
-    gameLayout->addWidget(entryEdit);
-
-    entryEdit->setValidator(new QIntValidator(0, 999, entryEdit));
+    startLayout->addWidget(difficultyLabel);
+    startLayout->addWidget(difficultyWidget);
+    startLayout->addWidget(timeLabel);
+    startLayout->addWidget(timeWidget);
+    startLayout->addWidget(startButton);
 
     //Menu
+    connect(startButton, &QPushButton::clicked, this, &MainWindow::startGame);
+
+    showFullScreen();
+    setCentralWidget(menuStackedWidget);
+
     menuStackedWidget->addWidget(startPage);
     menuStackedWidget->addWidget(gamePage);
 
@@ -58,23 +70,32 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow() {}
 
-void MainWindow::startGame()
+const std::vector<int>& MainWindow::getTables() const noexcept
 {
-    bool oneIsChecked = false;
+    return activeTables;
+}
+
+const TimeLimit& MainWindow::getTimeLimit() const noexcept
+{
+    return timeLimitSelect;
+}
+
+void MainWindow::startGame() noexcept
+{
     activeTables.clear();
     for(auto i = 0; i < tables.size(); ++i)
     {
         if(tables[i]->isChecked())
         {
-            oneIsChecked = true;
-            activeTables.insert(i+1);
+            activeTables.push_back(i+1);
         }
     }
 
     int id = timeGroup->checkedId();
-    if(oneIsChecked && id != -1)
+    if(activeTables.size() != 0 && id != -1)
     {
-        timeLimitSelect = static_cast<time>(id);
+        timeLimitSelect = static_cast<TimeLimit>(id);
+        gamePage->initSettings(getTables(), getTimeLimit());
         menuStackedWidget->setCurrentIndex(1);
     }
 }
