@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     menuStackedWidget = new QStackedWidget(this);
     startPage = new QWidget(menuStackedWidget);
     gamePage = new Game(menuStackedWidget);
+    scorePage = new QWidget(menuStackedWidget);
 
     //Start Page
     startLayout = new QVBoxLayout(startPage);
@@ -54,18 +55,24 @@ MainWindow::MainWindow(QWidget *parent)
     startLayout->addWidget(timeWidget);
     startLayout->addWidget(startButton);
 
+    //Score Page
+    scoreLayout = new QVBoxLayout(scorePage);
+    scoreLabel = new QLabel(scorePage);
+
+    scoreLayout->addWidget(scoreLabel);
+
     //Menu
     connect(startButton, &QPushButton::clicked, this, &MainWindow::startGame);
+    connect(gamePage, &Game::gameFinished, this, &MainWindow::onGameFinished);
 
     showFullScreen();
     setCentralWidget(menuStackedWidget);
 
     menuStackedWidget->addWidget(startPage);
     menuStackedWidget->addWidget(gamePage);
+    menuStackedWidget->addWidget(scorePage);
 
     menuStackedWidget->setCurrentIndex(0);
-
-
 }
 
 MainWindow::~MainWindow() {}
@@ -95,7 +102,13 @@ void MainWindow::startGame() noexcept
     if(activeTables.size() != 0 && id != -1)
     {
         timeLimitSelect = static_cast<TimeLimit>(id);
-        gamePage->initSettings(getTables(), getTimeLimit());
+        gamePage->initGame(getTables(), getTimeLimit());
         menuStackedWidget->setCurrentIndex(1);
     }
+}
+
+void MainWindow::onGameFinished(Score finalScore)
+{
+    scoreLabel->setText(QString("%1 / %2").arg(finalScore.goodAnswers).arg(finalScore.calculsMade));
+    menuStackedWidget->setCurrentIndex(2);
 }

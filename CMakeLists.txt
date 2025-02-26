@@ -39,6 +39,7 @@ else()
             ${PROJECT_SOURCES}
             game.h game.cpp
             timeLimit.h
+            score.h
         )
     endif()
 endif()

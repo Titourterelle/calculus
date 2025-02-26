@@ -9,14 +9,18 @@
 #include <vector>
 
 #include "timeLimit.h"
+#include "score.h"
 
 class Game : public QWidget
 {
     Q_OBJECT
 public:
     explicit Game(QWidget *parent = nullptr);
-    void initSettings(const std::vector<int> &tables, const TimeLimit &timeLimit) noexcept;
+    void initGame(const std::vector<int> &tables, const TimeLimit &timeLimit) noexcept;
 signals:
+    void gameFinished(Score finalScore);
+private slots:
+    void answerVerif() noexcept;
 private:
     void nextCalcul() noexcept;
 
@@ -26,6 +30,7 @@ private:
     QLineEdit *entryEdit;
 
     int goodAnswer;
+    Score currentScore;
     std::vector<int> activeTables;
     TimeLimit timeLimitSelect;
 };

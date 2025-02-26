@@ -18,6 +18,7 @@
 
 #include "game.h"
 #include "timeLimit.h"
+#include "score.h"
 
 class MainWindow : public QMainWindow
 {
@@ -32,10 +33,12 @@ public:
 
 public slots:
     void startGame() noexcept;
+    void onGameFinished(Score finalScore);
 private:
     QStackedWidget *menuStackedWidget;
     QWidget *startPage;
     Game *gamePage;
+    QWidget *scorePage;
 
     //Start Page Widget
     QVBoxLayout *startLayout;
@@ -63,6 +66,9 @@ private:
 
     TimeLimit timeLimitSelect = TimeLimit::Normal;
 
+    //Score Page
+    QVBoxLayout *scoreLayout;
+    QLabel *scoreLabel;
 
 };
 #endif // MAINWINDOW_H
