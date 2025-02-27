@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QTimer>
 
 #include <vector>
 
@@ -32,7 +33,10 @@ private:
     int goodAnswer;
     Score currentScore;
     std::vector<int> activeTables;
+
+    QTimer *questionTimer;
     TimeLimit timeLimitSelect;
+    int timeInSecond;
 };
 
 #endif // GAME_H
