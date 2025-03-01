@@ -1,5 +1,10 @@
 #include "mainwindow.h"
 
+#include <QToolTip>
+#include <QEvent>
+
+#include <QDebug>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -11,10 +16,13 @@ MainWindow::MainWindow(QWidget *parent)
     //Start Page
     startLayout = new QVBoxLayout(startPage);
 
-    difficultyLabel = new QLabel("Tables Activées", startPage);
+    difficultyLabel = new QLabel("TABLES ACTIVÉES", startPage);
+    difficultyLabel->setObjectName("title");
 
     difficultyWidget = new QWidget(startPage);
     difficultyLayout = new QGridLayout(difficultyWidget);
+    difficultyLayout->setHorizontalSpacing(200);
+    difficultyLayout->setVerticalSpacing(50);
 
     for(auto i = 0; i < 10; ++i)
     {
@@ -23,16 +31,23 @@ MainWindow::MainWindow(QWidget *parent)
         tables[i]->setChecked(true);
     }
 
-    timeLabel = new QLabel("Limite de Temps", startPage);
+    timeLabel = new QLabel("LIMITE DE TEMPS", startPage);
+    timeLabel->setObjectName("title");
 
     timeWidget = new QWidget(startPage);
     timeLayout = new QHBoxLayout(timeWidget);
+    timeLayout->setSpacing(100);
 
     timeGroup = new QButtonGroup(timeWidget);
-    longTime = new QRadioButton("Long", timeWidget);
-    normalTime = new QRadioButton("Normal", timeWidget);
-    shortTime = new QRadioButton("Court", timeWidget);
     noTime = new QRadioButton("Sans", timeWidget);
+    shortTime = new QRadioButton("Court", timeWidget);
+    normalTime = new QRadioButton("Normal", timeWidget);
+    longTime = new QRadioButton("Long", timeWidget);
+
+    noTime->installEventFilter(this);
+    shortTime->installEventFilter(this);
+    normalTime->installEventFilter(this);
+    longTime->installEventFilter(this);
 
     timeGroup->addButton(noTime, 0);
     timeGroup->addButton(shortTime, 1);
@@ -47,13 +62,14 @@ MainWindow::MainWindow(QWidget *parent)
     timeLayout->addWidget(longTime);
 
     startButton = new QPushButton(startPage);
-    startButton->setText("Jouer");
+    startButton->setText("JOUER");
+    startButton->setMinimumSize(1000, 80);
 
-    startLayout->addWidget(difficultyLabel);
-    startLayout->addWidget(difficultyWidget);
-    startLayout->addWidget(timeLabel);
-    startLayout->addWidget(timeWidget);
-    startLayout->addWidget(startButton);
+    startLayout->addWidget(difficultyLabel, 0, Qt::AlignHCenter);
+    startLayout->addWidget(difficultyWidget, 0, Qt::AlignHCenter);
+    startLayout->addWidget(timeLabel, 0, Qt::AlignHCenter);
+    startLayout->addWidget(timeWidget, 0, Qt::AlignHCenter);
+    startLayout->addWidget(startButton, 0, Qt::AlignCenter);
 
     //Score Page
     scoreLayout = new QVBoxLayout(scorePage);
@@ -107,8 +123,41 @@ void MainWindow::startGame() noexcept
     }
 }
 
-void MainWindow::onGameFinished(Score finalScore)
+void MainWindow::onGameFinished(Score finalScore) noexcept
 {
     scoreLabel->setText(QString("%1 / %2").arg(finalScore.goodAnswers).arg(finalScore.calculsMade));
     menuStackedWidget->setCurrentIndex(2);
+}
+
+void MainWindow::showToolTip(QString text) noexcept
+{
+    QToolTip::showText(QCursor::pos(), text);
+}
+
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::Enter)
+    {
+        if(watched == noTime)
+        {
+            showToolTip("Illimité");
+        }
+        else if(watched == shortTime)
+        {
+            showToolTip("10 secondes");
+        }
+        else if(watched == normalTime)
+        {
+            showToolTip("15 secondes");
+        }
+        else if(watched == longTime)
+        {
+            showToolTip("20 secondes");
+        }
+    }
+    if (event->type() == QEvent::Leave)
+    {
+        QToolTip::hideText();
+    }
+    return QMainWindow::eventFilter(watched, event);
 }

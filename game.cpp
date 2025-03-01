@@ -12,10 +12,15 @@ Game::Game(QWidget *parent)
     gameLayout = new QVBoxLayout(this);
 
     calculLabel = new QLabel(this);
-    entryEdit = new QLineEdit(this);
+    calculLabel->setObjectName("calcul");
 
-    gameLayout->addWidget(calculLabel);
-    gameLayout->addWidget(entryEdit);
+    entryEdit = new QLineEdit(this);
+    entryEdit->setMinimumSize(1000, 50);
+    entryEdit->setAlignment(Qt::AlignCenter);
+    entryEdit->setContentsMargins(0,0,0,50);
+
+    gameLayout->addWidget(calculLabel, 1, Qt::AlignCenter);
+    gameLayout->addWidget(entryEdit, 0, Qt::AlignCenter);
 
     entryEdit->setValidator(new QIntValidator(0, 999, entryEdit));
 

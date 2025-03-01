@@ -31,10 +31,15 @@ public:
     const std::vector<int>& getTables() const noexcept;
     const TimeLimit& getTimeLimit() const noexcept;
 
-public slots:
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
+private slots:
     void startGame() noexcept;
-    void onGameFinished(Score finalScore);
+    void onGameFinished(Score finalScore) noexcept;
 private:
+    void showToolTip(QString text) noexcept;
+
     QStackedWidget *menuStackedWidget;
     QWidget *startPage;
     Game *gamePage;
