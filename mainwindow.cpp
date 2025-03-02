@@ -74,12 +74,35 @@ MainWindow::MainWindow(QWidget *parent)
     //Score Page
     scoreLayout = new QVBoxLayout(scorePage);
     scoreLabel = new QLabel(scorePage);
+    scoreLabel->setObjectName("score");
 
-    scoreLayout->addWidget(scoreLabel);
+    correctionWidget = new QWidget(scorePage);
+    correctionLayout = new QGridLayout(correctionWidget);
+    correctionLayout->setSpacing(100);
+
+    scoreButtonsWidget = new QWidget(scorePage);
+    replayLayout = new QHBoxLayout(scoreButtonsWidget);
+    replayLayout->setSpacing(100);
+
+    replayButton = new QPushButton("REJOUER", scoreButtonsWidget);
+    menuButton = new QPushButton("MENU", scoreButtonsWidget);
+    replayButton->setMinimumSize(700, 80);
+    menuButton->setMinimumSize(700, 80);
+
+    replayLayout->addWidget(replayButton);
+    replayLayout->addWidget(menuButton);
+
+    scoreLayout->addWidget(scoreLabel, 0, Qt::AlignCenter);
+    scoreLayout->addWidget(correctionWidget, 0, Qt::AlignCenter);
+    scoreLayout->addWidget(scoreButtonsWidget, 0, Qt::AlignBottom);
 
     //Menu
     connect(startButton, &QPushButton::clicked, this, &MainWindow::startGame);
+
     connect(gamePage, &Game::gameFinished, this, &MainWindow::onGameFinished);
+
+    connect(replayButton, &QPushButton::clicked, this, &MainWindow::startGame);
+    connect(menuButton, &QPushButton::clicked, this, [this](){menuStackedWidget->setCurrentIndex(0);});
 
     showFullScreen();
     setCentralWidget(menuStackedWidget);
@@ -121,11 +144,30 @@ void MainWindow::startGame() noexcept
         gamePage->initGame(getTables(), getTimeLimit());
         menuStackedWidget->setCurrentIndex(1);
     }
+
+    while (correctionLayout->count() > 0)
+    {
+        QWidget *widget = correctionLayout->itemAt(0)->widget();
+        if (widget) {
+            correctionLayout->removeWidget(widget);
+            delete widget;
+        }
+    }
 }
 
-void MainWindow::onGameFinished(Score finalScore) noexcept
+void MainWindow::onGameFinished(const Score &finalScore, const std::map<std::string, bool> &calculs) noexcept
 {
     scoreLabel->setText(QString("%1 / %2").arg(finalScore.goodAnswers).arg(finalScore.calculsMade));
+
+    int i = 0;
+    for(const auto &[calcul, success] : calculs)
+    {
+        QLabel *calculLabel = new QLabel(QString::fromStdString(calcul), correctionWidget);
+        calculLabel->setObjectName("correction");
+        calculLabel->setStyleSheet(success ? "color: #2F8D46;" : "color: #D62828;");
+        correctionLayout->addWidget(calculLabel, i/5, i%5);
+        ++i;
+    }
     menuStackedWidget->setCurrentIndex(2);
 }
 

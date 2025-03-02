@@ -37,6 +37,8 @@ void Game::initGame(const std::vector<int> &tables, const TimeLimit &timeLimit) 
     activeTables = tables;
     timeLimitSelect = timeLimit;
 
+    calculs.clear();
+
     switch (timeLimitSelect)
     {
     case TimeLimit::Low:
@@ -61,7 +63,7 @@ void Game::nextCalcul() noexcept
 {
     if(currentScore.isFinished())
     {
-        emit gameFinished(currentScore);
+        emit gameFinished(currentScore, calculs);
         return;
     }
     static std::random_device rd;
@@ -69,11 +71,14 @@ void Game::nextCalcul() noexcept
     std::uniform_int_distribution<int> distTables(0, activeTables.size() - 1);
     static std::uniform_int_distribution<int> distGeneral(1, 10);
 
-    int facteur1 = activeTables[distTables(gen)];
-    int facteur2 = distGeneral(gen);
-    goodAnswer = facteur1*facteur2;
-
-    calculLabel->setText(QString("%1 x %2").arg(facteur1).arg(facteur2));
+    do
+    {
+        int facteur1 = activeTables[distTables(gen)];
+        int facteur2 = distGeneral(gen);
+        goodAnswer = facteur1*facteur2;
+        calculLabel->setText(QString("%1 x %2").arg(facteur1).arg(facteur2));
+        currentCalcul = std::to_string(facteur1) + " x " + std::to_string(facteur2) + " = " + std::to_string(goodAnswer);
+    } while (calculs.find(currentCalcul) != calculs.end());
 
     if(timeInSecond != 0)
     {
@@ -90,11 +95,13 @@ void Game::answerVerif() noexcept
         //TODO : Affichage réussite
         qDebug() << "Bravo";
         currentScore.goodAnswers++;
+        calculs[currentCalcul] = true;
     }
     else
     {
         //TODO : Affichage échec
         qDebug() << "Dommage";
+        calculs[currentCalcul] = false;
     }
     entryEdit->clear();
     nextCalcul();

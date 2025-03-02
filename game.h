@@ -8,6 +8,8 @@
 #include <QTimer>
 
 #include <vector>
+#include <map>
+#include <string>
 
 #include "timeLimit.h"
 #include "score.h"
@@ -19,7 +21,7 @@ public:
     explicit Game(QWidget *parent = nullptr);
     void initGame(const std::vector<int> &tables, const TimeLimit &timeLimit) noexcept;
 signals:
-    void gameFinished(Score finalScore);
+    void gameFinished(const Score &finalScore, const std::map<std::string, bool> &calculs);
 private slots:
     void answerVerif() noexcept;
 private:
@@ -32,6 +34,8 @@ private:
 
     int goodAnswer;
     Score currentScore;
+    std::map<std::string, bool> calculs;
+    std::string currentCalcul;
     std::vector<int> activeTables;
 
     QTimer *questionTimer;

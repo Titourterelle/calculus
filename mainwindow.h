@@ -3,6 +3,8 @@
 
 #include <array>
 #include <vector>
+#include <map>
+#include <string>
 
 #include <QMainWindow>
 #include <QWidget>
@@ -36,7 +38,7 @@ protected:
 
 private slots:
     void startGame() noexcept;
-    void onGameFinished(Score finalScore) noexcept;
+    void onGameFinished(const Score &finalScore, const std::map<std::string, bool> &calculs) noexcept;
 private:
     void showToolTip(QString text) noexcept;
 
@@ -73,7 +75,16 @@ private:
 
     //Score Page
     QVBoxLayout *scoreLayout;
+
     QLabel *scoreLabel;
+
+    QWidget *correctionWidget;
+    QGridLayout *correctionLayout;
+
+    QWidget *scoreButtonsWidget;
+    QHBoxLayout *replayLayout;
+    QPushButton *replayButton;
+    QPushButton *menuButton;
 
 };
 #endif // MAINWINDOW_H

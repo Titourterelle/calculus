@@ -42,6 +42,7 @@ else()
             game.h game.cpp
             timeLimit.h
             score.h
+            ressources.qrc
         )
     endif()
 endif()
