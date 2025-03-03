@@ -2,6 +2,7 @@
 
 #include <QToolTip>
 #include <QEvent>
+#include <QApplication>
 
 #include <QDebug>
 
@@ -9,9 +10,29 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     menuStackedWidget = new QStackedWidget(this);
+    menuPage = new QWidget(menuStackedWidget);
     startPage = new QWidget(menuStackedWidget);
     gamePage = new Game(menuStackedWidget);
     scorePage = new QWidget(menuStackedWidget);
+
+    //Menu Page
+    menuLayout = new QVBoxLayout(menuPage);
+
+    titleLabel = new QLabel("CALCULUS", menuPage);
+    titleLabel->setStyleSheet("font-size: 80px; font-weight: bold;");
+
+    startPageButton = new QPushButton("JOUER", menuPage);
+    quitButton = new QPushButton("QUITTER", menuPage);
+
+    startPageButton->setMinimumSize(800, 80);
+    quitButton->setMinimumSize(700, 80);
+
+    menuLayout->setSpacing(100);
+    menuLayout->setContentsMargins(50, 150, 50, 150);
+
+    menuLayout->addWidget(titleLabel, 1, Qt::AlignCenter);
+    menuLayout->addWidget(startPageButton, 0, Qt::AlignCenter);
+    menuLayout->addWidget(quitButton, 0, Qt::AlignCenter);
 
     //Start Page
     startLayout = new QVBoxLayout(startPage);
@@ -61,15 +82,24 @@ MainWindow::MainWindow(QWidget *parent)
     timeLayout->addWidget(normalTime);
     timeLayout->addWidget(longTime);
 
-    startButton = new QPushButton(startPage);
-    startButton->setText("JOUER");
-    startButton->setMinimumSize(1000, 80);
+    playButtonsWidget = new QWidget(startPage);
+    playButtonsLayout = new QHBoxLayout(playButtonsWidget);
+    playButtonsLayout->setSpacing(100);
+
+    returnMenuButton = new QPushButton("MENU", playButtonsWidget);
+    playButton = new QPushButton("JOUER", playButtonsWidget);
+
+    returnMenuButton->setMinimumSize(700, 80);
+    playButton->setMinimumSize(700, 80);
+
+    playButtonsLayout->addWidget(returnMenuButton);
+    playButtonsLayout->addWidget(playButton);
 
     startLayout->addWidget(difficultyLabel, 0, Qt::AlignHCenter);
     startLayout->addWidget(difficultyWidget, 0, Qt::AlignHCenter);
     startLayout->addWidget(timeLabel, 0, Qt::AlignHCenter);
     startLayout->addWidget(timeWidget, 0, Qt::AlignHCenter);
-    startLayout->addWidget(startButton, 0, Qt::AlignCenter);
+    startLayout->addWidget(playButtonsWidget, 0, Qt::AlignCenter);
 
     //Score Page
     scoreLayout = new QVBoxLayout(scorePage);
@@ -97,21 +127,26 @@ MainWindow::MainWindow(QWidget *parent)
     scoreLayout->addWidget(scoreButtonsWidget, 0, Qt::AlignBottom);
 
     //Menu
-    connect(startButton, &QPushButton::clicked, this, &MainWindow::startGame);
+    connect(startPageButton, &QPushButton::clicked, this, [this](){menuStackedWidget->setCurrentWidget(startPage);});
+    connect(quitButton, &QPushButton::clicked, this, [this](){QApplication::quit();});
+
+    connect(returnMenuButton, &QPushButton::clicked, this, [this](){menuStackedWidget->setCurrentWidget(menuPage);});
+    connect(playButton, &QPushButton::clicked, this, &MainWindow::startGame);
 
     connect(gamePage, &Game::gameFinished, this, &MainWindow::onGameFinished);
 
     connect(replayButton, &QPushButton::clicked, this, &MainWindow::startGame);
-    connect(menuButton, &QPushButton::clicked, this, [this](){menuStackedWidget->setCurrentIndex(0);});
+    connect(menuButton, &QPushButton::clicked, this, [this](){menuStackedWidget->setCurrentWidget(menuPage);});
 
     showFullScreen();
     setCentralWidget(menuStackedWidget);
 
+    menuStackedWidget->addWidget(menuPage);
     menuStackedWidget->addWidget(startPage);
     menuStackedWidget->addWidget(gamePage);
     menuStackedWidget->addWidget(scorePage);
 
-    menuStackedWidget->setCurrentIndex(0);
+    menuStackedWidget->setCurrentWidget(menuPage);
 }
 
 MainWindow::~MainWindow() {}
@@ -142,7 +177,7 @@ void MainWindow::startGame() noexcept
     {
         timeLimitSelect = static_cast<TimeLimit>(id);
         gamePage->initGame(getTables(), getTimeLimit());
-        menuStackedWidget->setCurrentIndex(1);
+        menuStackedWidget->setCurrentWidget(gamePage);
     }
 
     while (correctionLayout->count() > 0)
@@ -168,7 +203,7 @@ void MainWindow::onGameFinished(const Score &finalScore, const std::map<std::str
         correctionLayout->addWidget(calculLabel, i/5, i%5);
         ++i;
     }
-    menuStackedWidget->setCurrentIndex(2);
+    menuStackedWidget->setCurrentWidget(scorePage);
 }
 
 void MainWindow::showToolTip(QString text) noexcept
