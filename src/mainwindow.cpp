@@ -4,8 +4,6 @@
 #include <QEvent>
 #include <QApplication>
 
-#include <QDebug>
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {

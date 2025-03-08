@@ -4,8 +4,6 @@
 
 #include <QIntValidator>
 
-#include <QDebug>
-
 Game::Game(QWidget *parent)
     : QWidget{parent}
 {

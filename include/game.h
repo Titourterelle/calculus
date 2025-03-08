@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QTimer>
+#include <QSoundEffect>
 
 #include <vector>
 #include <map>
@@ -24,11 +25,13 @@ signals:
     void gameFinished(const Score &finalScore, const std::map<std::string, bool> &calculs);
 private slots:
     void answerVerif() noexcept;
+    void updateTimer() noexcept;
 private:
     void nextCalcul() noexcept;
 
     QVBoxLayout *gameLayout;
 
+    QLabel *countdownLabel;
     QLabel *calculLabel;
     QLineEdit *entryEdit;
 
@@ -40,7 +43,11 @@ private:
 
     QTimer *questionTimer;
     TimeLimit timeLimitSelect;
-    int timeInSecond;
+    int remainingTimeInSecond;
+    int timeLimitInSecond;
+
+    QSoundEffect *correctAnswer;
+    QSoundEffect *wrongAnswer;
 };
 
 #endif // GAME_H

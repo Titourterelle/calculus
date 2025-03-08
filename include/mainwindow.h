@@ -43,11 +43,19 @@ private:
     void showToolTip(QString text) noexcept;
 
     QStackedWidget *menuStackedWidget;
+    QWidget *menuPage;
     QWidget *startPage;
     Game *gamePage;
     QWidget *scorePage;
 
-    //Start Page Widget
+    //Menu Page
+    QVBoxLayout *menuLayout;
+
+    QLabel *titleLabel; // A REMPLACER PAR UN LOGO (si possible)
+    QPushButton *startPageButton;
+    QPushButton *quitButton;
+
+    //Start Page
     QVBoxLayout *startLayout;
 
     QLabel *difficultyLabel;
@@ -66,7 +74,10 @@ private:
     QRadioButton *shortTime;
     QRadioButton *noTime;
 
-    QPushButton *startButton;
+    QWidget *playButtonsWidget;
+    QHBoxLayout *playButtonsLayout;
+    QPushButton *playButton;
+    QPushButton *returnMenuButton;
 
     std::array<QCheckBox*, 10> tables;
     std::vector<int> activeTables;

@@ -13,8 +13,6 @@ int main(int argc, char *argv[])
         QTextStream stream(&file);
         a.setStyleSheet(stream.readAll());
         file.close();
-    } else {
-        qDebug() << "Erreur : Impossible d'ouvrir style.qss";
     }
 
     MainWindow w;
