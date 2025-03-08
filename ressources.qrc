@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>assets/style.qss</file>
+        <file>assets/sounds/correct-answer.wav</file>
+        <file>assets/sounds/wrong-answer.wav</file>
     </qresource>
 </RCC>

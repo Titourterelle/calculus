@@ -9,8 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Multimedia)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
@@ -24,26 +24,14 @@ set(RESOURCES
     ressources.qrc
 )
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(calculus
-        MANUAL_FINALIZATION
-        ${SOURCES}
-        ${RESOURCES}
-    )
-else()
-    if(ANDROID)
-        add_library(calculus SHARED ${SOURCES} ${RESOURCES})
-    else()
-        add_executable(calculus ${SOURCES} ${RESOURCES}
-            include/game.h include/mainwindow.h include/score.h include/timeLimit.h)
-    endif()
-endif()
+qt_add_executable(calculus
+    MANUAL_FINALIZATION
+    ${SOURCES}
+    ${RESOURCES}
+    include/game.h include/mainwindow.h include/score.h include/timeLimit.h
+)
 
-target_link_libraries(calculus PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-
-if(${QT_VERSION} VERSION_LESS 6.1.0)
-    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.calculus)
-endif()
+target_link_libraries(calculus PRIVATE Qt6::Widgets Qt6::Multimedia)
 
 set_target_properties(calculus PROPERTIES
     ${BUNDLE_ID_OPTION}
@@ -60,6 +48,4 @@ install(TARGETS calculus
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(calculus)
-endif()
+qt_finalize_executable(calculus)

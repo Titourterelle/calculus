@@ -10,6 +10,9 @@ Game::Game(QWidget *parent)
     : QWidget{parent}
 {
     gameLayout = new QVBoxLayout(this);
+    gameLayout->setContentsMargins(50, 100, 50, 50);
+
+    countdownLabel = new QLabel(this);
 
     calculLabel = new QLabel(this);
     calculLabel->setObjectName("calcul");
@@ -19,17 +22,24 @@ Game::Game(QWidget *parent)
     entryEdit->setAlignment(Qt::AlignCenter);
     entryEdit->setContentsMargins(0,0,0,50);
 
+    gameLayout->addWidget(countdownLabel, 0, Qt::AlignCenter);
     gameLayout->addWidget(calculLabel, 1, Qt::AlignCenter);
     gameLayout->addWidget(entryEdit, 0, Qt::AlignCenter);
 
     entryEdit->setValidator(new QIntValidator(0, 999, entryEdit));
 
     questionTimer = new QTimer(this);
-    questionTimer->setSingleShot(true);
-    timeInSecond = 0;
+
+    // Effets Sonores de réponse
+    correctAnswer = new QSoundEffect(this);
+    correctAnswer->setSource(QUrl::fromLocalFile(":/assets/sounds/correct-answer.wav"));
+
+    wrongAnswer = new QSoundEffect(this);
+    wrongAnswer->setSource(QUrl::fromLocalFile(":/assets/sounds/wrong-answer.wav"));
+
 
     connect(entryEdit, &QLineEdit::returnPressed, this, &Game::answerVerif);
-    connect(questionTimer, &QTimer::timeout, this, &Game::answerVerif);
+    connect(questionTimer, &QTimer::timeout, this, &Game::updateTimer);
 }
 
 void Game::initGame(const std::vector<int> &tables, const TimeLimit &timeLimit) noexcept
@@ -39,19 +49,21 @@ void Game::initGame(const std::vector<int> &tables, const TimeLimit &timeLimit) 
 
     calculs.clear();
 
+    countdownLabel->show();
     switch (timeLimitSelect)
     {
     case TimeLimit::Low:
-        timeInSecond = 10;
+        timeLimitInSecond = 10;
         break;
     case TimeLimit::Normal:
-        timeInSecond = 15;
+        timeLimitInSecond = 15;
         break;
     case TimeLimit::High:
-        timeInSecond = 20;
+        timeLimitInSecond = 20;
         break;
     default:
-        timeInSecond = 0;
+        timeLimitInSecond = 0;
+        countdownLabel->hide();
         break;
     }
 
@@ -80,9 +92,11 @@ void Game::nextCalcul() noexcept
         currentCalcul = std::to_string(facteur1) + " x " + std::to_string(facteur2) + " = " + std::to_string(goodAnswer);
     } while (calculs.find(currentCalcul) != calculs.end());
 
-    if(timeInSecond != 0)
+    remainingTimeInSecond = timeLimitInSecond;
+    if(remainingTimeInSecond != 0)
     {
-        questionTimer->start(timeInSecond*1000);
+        questionTimer->start(1000);
+        countdownLabel->setText(QString::number(remainingTimeInSecond));
     }
 }
 
@@ -92,17 +106,26 @@ void Game::answerVerif() noexcept
     currentScore.calculsMade++;
     if(entryEdit->text().toInt() == goodAnswer)
     {
-        //TODO : Affichage réussite
-        qDebug() << "Bravo";
+        correctAnswer->play();
         currentScore.goodAnswers++;
         calculs[currentCalcul] = true;
     }
     else
     {
-        //TODO : Affichage échec
-        qDebug() << "Dommage";
+        wrongAnswer->play();
         calculs[currentCalcul] = false;
     }
     entryEdit->clear();
     nextCalcul();
+}
+
+void Game::updateTimer() noexcept
+{
+    remainingTimeInSecond--;
+    countdownLabel->setText(QString::number(remainingTimeInSecond));
+
+    if(remainingTimeInSecond == 0)
+    {
+        answerVerif();
+    }
 }
